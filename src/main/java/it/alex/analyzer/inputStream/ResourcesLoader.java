@@ -5,15 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ResourcesLoader implements ResourcesProvider {
+    private String path;
     private List<File> fileList = new ArrayList<>();
 
-
-    public ResourcesLoader() {
+    public ResourcesLoader(String path) {
+        this.path = path;
         loadFile();
     }
 
     private void loadFile() {
-        File dir = new File(getClass().getClassLoader().getResource("folderLogFiles").getFile());
+        File dir = new File(path);
         File[] folder = dir.listFiles();
         for (int i = 0; i < folder.length; i++) {
             if (folder[i].isFile()) {
@@ -23,8 +24,8 @@ public class ResourcesLoader implements ResourcesProvider {
         }
     }
 
-    @Override
-    public List getFile() {
-        return fileList;
+        @Override
+        public List getFileList() {
+            return fileList;
+        }
     }
-}

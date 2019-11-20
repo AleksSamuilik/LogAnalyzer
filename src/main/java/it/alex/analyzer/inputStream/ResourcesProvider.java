@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface ResourcesProvider {
 
-    List getFile();
+    List getFileList();
 
 }
