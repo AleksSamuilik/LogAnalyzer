@@ -8,14 +8,18 @@ import java.util.Arrays;
 import java.util.List;
 
 
-/**
+/** FORMAT LOG FILE:
+ *  yyyy/MM/dd hh:mm:ss,sss  [TYPE_MESSAGE] USER_NAME SERVER NAME_CLASS NAME_METHOD - TEXT MESSAGE
+ *  EXAMPLE:
+ *  2017/06/01 15:37:18,186  [INFO] Aleks main resourcePath.ResourceStarter:17 - Starting resources...
+ *
  * String[]args
  * [0] - file directory location
  * [1] - date to search
  * [2] - user name to search
  * [3] - pattern message to search
  * <p>
- * command line arguments example: D:\Java\LogAnalyzer\folderLogFiles -d-2019/11/01 -n-Sam -p-Context: ClassPath
+ * command line arguments example: D:\Java\LogAnalyzer\folderLogFiles -d-2019/11/01 -d-2019/11/21 -n-Sam -p-Context: ClassPath
  * log files directory\
  * -d-yyyy/MM/dd
  * -n-UserName
@@ -24,7 +28,6 @@ import java.util.List;
 
 public class App {
     private static List<String> argsList;
-
     public static void main(String[] args) {
         argsList = new ArrayList(Arrays.asList(args));
         try {

@@ -9,16 +9,21 @@ import java.util.regex.Pattern;
 
 public class SearchEngine implements LogAnalysis {
 
-    private Map<Integer, String> arguments = new HashMap<>();
+    private Map<String, Integer> arguments = new HashMap<>();
     private final Pattern LOG_PATTERN = Pattern.compile("(\\d{4}\\/\\d{2}\\/\\d{2}).+(\\[\\w+\\])\\s+([a-zA-z0-9]+).+\\s-\\s(.+)");
     private final int NUMBER_GROUP_DATE = 1;
     private final int NUMBER_GROUP_TYPE = 2;
     private final int NUMBER_GROUP_NAME = 3;
     private final int NUMBER_GROUP_MESSAGE = 4;
-    private final List<String> argsList;
+    private List<String> argsList;
+    private String findedArgument;
+
+    public SearchEngine() {
+    }
 
     public SearchEngine(List argsList) {
         this.argsList = argsList;
+
     }
 
     @Override
@@ -27,43 +32,55 @@ public class SearchEngine implements LogAnalysis {
         while (iterator.hasNext()) {
             String input = (String) iterator.next();
             if (input.contains("-d-")) {
-                arguments.put(NUMBER_GROUP_DATE, input.replaceAll("-d-", ""));
+                arguments.put(input.replaceAll("-d-", ""), NUMBER_GROUP_DATE);
             } else if (input.contains("-n-")) {
-                arguments.put(NUMBER_GROUP_NAME, input.replaceAll("-n-", ""));
+                arguments.put(input.replaceAll("-n-", ""), NUMBER_GROUP_NAME);
             } else if (input.contains("-p-")) {
+
                 StringBuilder builder = new StringBuilder();
                 builder.append(input.replaceAll("-p-", ""));
+
                 while (iterator.hasNext()) {
                     input = (String) iterator.next();
                     builder.append(" ");
                     builder.append(input);
                 }
-                arguments.put(NUMBER_GROUP_MESSAGE, builder.toString());
+                arguments.put(builder.toString(), NUMBER_GROUP_MESSAGE);
             }
         }
         if (arguments.size() == 0) {
             throw new ArgumentsException("Incorrect arguments.");
         }
+
     }
 
     @Override
     public boolean isValid(String input) {
+        long countValidArg = 0;
         if (arguments.size() == 0) {
             return false;
         }
         Pattern p = LOG_PATTERN;
         Matcher m = p.matcher(input);
-        boolean isValid = false;
         if (m.find()) {
             for (Map.Entry entry : arguments.entrySet()) {
-                if (m.group((Integer) entry.getKey()).contains((String) entry.getValue())) {
-                    isValid = true;
-                } else {
-                    return false;
+                if (m.group((Integer) entry.getValue()).contains((String) entry.getKey())) {
+                    findedArgument =(String) entry.getKey();
+                    return true;
                 }
             }
         }
-        return isValid;
+        return false;
+    }
+
+    @Override
+    public Map<String, Integer> getArguments() {
+        return arguments;
+    }
+
+    @Override
+    public String getFindedArgument() {
+        return findedArgument;
     }
 }
 

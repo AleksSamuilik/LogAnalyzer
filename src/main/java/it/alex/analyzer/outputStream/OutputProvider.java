@@ -3,7 +3,7 @@ package it.alex.analyzer.outputStream;
 import java.io.File;
 
 public interface OutputProvider {
-    void write(String string);
+    void write(String stringToWrite);
 
     void close();
 
