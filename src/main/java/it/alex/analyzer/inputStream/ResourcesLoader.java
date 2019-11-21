@@ -14,6 +14,7 @@ public class ResourcesLoader implements ResourcesProvider {
     }
 
     private void loadFile() {
+
         File dir = new File(path);
         File[] folder = dir.listFiles();
         for (int i = 0; i < folder.length; i++) {
@@ -24,8 +25,8 @@ public class ResourcesLoader implements ResourcesProvider {
         }
     }
 
-        @Override
-        public List getFileList() {
-            return fileList;
-        }
+    @Override
+    public List getFileList() {
+        return fileList;
     }
+}

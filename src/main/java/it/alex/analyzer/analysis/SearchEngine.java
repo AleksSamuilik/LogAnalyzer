@@ -15,15 +15,14 @@ public class SearchEngine implements LogAnalysis {
     private final int NUMBER_GROUP_TYPE = 2;
     private final int NUMBER_GROUP_NAME = 3;
     private final int NUMBER_GROUP_MESSAGE = 4;
-
-//    command line arguments example: D:/LogFolder -d-2019/11/01 -n-Sam -p-Context: ClassPath
+    private final List<String> argsList;
 
     public SearchEngine(List argsList) {
-        initialArguments(argsList);
+        this.argsList = argsList;
     }
 
-    private void initialArguments(List argsList) {
-
+    @Override
+    public void initialArguments() throws ArgumentsException {
         Iterator iterator = argsList.iterator();
         while (iterator.hasNext()) {
             String input = (String) iterator.next();
@@ -42,7 +41,9 @@ public class SearchEngine implements LogAnalysis {
                 arguments.put(NUMBER_GROUP_MESSAGE, builder.toString());
             }
         }
-
+        if (arguments.size() == 0) {
+            throw new ArgumentsException("Incorrect arguments.");
+        }
     }
 
     @Override
@@ -53,11 +54,9 @@ public class SearchEngine implements LogAnalysis {
         Pattern p = LOG_PATTERN;
         Matcher m = p.matcher(input);
         boolean isValid = false;
-
-
         if (m.find()) {
             for (Map.Entry entry : arguments.entrySet()) {
-                if (m.group((Integer) entry.getKey()).contains((String)entry.getValue())) {
+                if (m.group((Integer) entry.getKey()).contains((String) entry.getValue())) {
                     isValid = true;
                 } else {
                     return false;
