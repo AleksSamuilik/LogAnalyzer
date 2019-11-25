@@ -8,15 +8,13 @@ public class LogFileWriter implements OutputProvider {
     private final int flushFrequency = 100;
     private String outputFilePath;
 
-
     private PrintWriter logWriter;
 
     public LogFileWriter() {
     }
 
-
     @Override
-    public void write(String inputString) {
+    public synchronized void write(String inputString) {
         String text = inputString + "\n";
         logWriter.write(text, 0, text.length());
         flushCounter++;
@@ -33,7 +31,7 @@ public class LogFileWriter implements OutputProvider {
 
     @Override
     public void createOutputFile() {
-      File outputFile = new File(outputFilePath);
+        File outputFile = new File(outputFilePath);
         if (!outputFile.exists()) {
             try {
                 outputFile.createNewFile();
@@ -50,6 +48,6 @@ public class LogFileWriter implements OutputProvider {
 
     @Override
     public void setPathOutputFile(File inputFile) {
-        outputFilePath = inputFile.getParent()+"\\LogAnalyzer.log";
+        outputFilePath = inputFile.getParent() + "\\LogAnalyzer.log";
     }
 }

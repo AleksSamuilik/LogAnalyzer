@@ -1,25 +1,31 @@
 package it.alex.analyzer.statistics;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class StatisticsEngine implements LogStatistics {
     Map<String, Long> statisticsMap = new HashMap<>();
 
     @Override
     public Map getStatistics() {
-       return statisticsMap;
-}
-
-    @Override
-    public void statisticsCounting(String key) {
-
-        Long count = statisticsMap.get(key);
-        statisticsMap.put(key, ++count);
+        return statisticsMap;
     }
 
     @Override
-    public void initialArguments(Set keySet) {
-        Iterator iterator = keySet.iterator();
+    public synchronized void statisticsCounting(List key) {
+        Iterator iterator = key.iterator();
+        while (iterator.hasNext()) {
+            String line = (String) iterator.next();
+            Long count = statisticsMap.get(line);
+            statisticsMap.put(line, ++count);
+        }
+    }
+
+    @Override
+    public void initialArguments(List list) {
+        Iterator iterator = list.iterator();
         while (iterator.hasNext()) {
             statisticsMap.put((String) iterator.next(), 0l);
         }

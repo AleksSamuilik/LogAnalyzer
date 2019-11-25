@@ -14,11 +14,11 @@ import java.util.Map;
 
 
 public class LogsHandler {
+
     private List<File> fileList;
     private LogAnalysis logAnalysis;
     private OutputProvider outputProvider;
     private LogStatistics logStatistics;
-
 
     public LogsHandler() {
     }
@@ -30,7 +30,7 @@ public class LogsHandler {
         this.logStatistics = logStatistics;
     }
 
-    private void handler(File inputFile) {
+    public synchronized void handler(File inputFile) {
         try (FileReader fileReader = new FileReader(inputFile);
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
             String line;
@@ -43,12 +43,13 @@ public class LogsHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        notify();
     }
 
     private void printStatistic(Map statisticMap) {
-        Map<String, Long> statistics = logStatistics.getStatistics();
+        Map<String, Long> statistics = statisticMap;
         for (Map.Entry entry : statistics.entrySet()) {
-            System.out.println(entry.getKey()+" -> "+entry.getValue());
+            System.out.println(entry.getKey() + " -> " + entry.getValue());
         }
     }
 
@@ -56,12 +57,35 @@ public class LogsHandler {
         logAnalysis.initialArguments();
         outputProvider.setPathOutputFile(fileList.get(0));
         outputProvider.createOutputFile();
-        logStatistics.initialArguments(logAnalysis.getArguments().keySet());
+        logStatistics.initialArguments(logAnalysis.getArguments());
+
         for (int i = 0; i < fileList.size(); i++) {
-            handler(fileList.get(i));
+            MyThread myThread = new MyThread(this, fileList.get(i));
+            myThread.start();
+            synchronized (myThread) {
+                try {
+                    myThread.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         outputProvider.close();
         printStatistic(logStatistics.getStatistics());
     }
 
+    class MyThread extends Thread {
+        LogsHandler logsHandler;
+        File file;
+
+        public MyThread(LogsHandler logsHandler, File file) {
+            this.logsHandler = logsHandler;
+            this.file = file;
+        }
+
+        @Override
+        public void run() {
+            logsHandler.handler(file);
+        }
+    }
 }

@@ -1,40 +1,40 @@
 package it.alex.analyzer.analysis;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SearchEngine implements LogAnalysis {
 
-    private Map<String, Integer> arguments = new HashMap<>();
-    private final Pattern LOG_PATTERN = Pattern.compile("(\\d{4}\\/\\d{2}\\/\\d{2}).+(\\[\\w+\\])\\s+([a-zA-z0-9]+).+\\s-\\s(.+)");
-    private final int NUMBER_GROUP_DATE = 1;
-    private final int NUMBER_GROUP_TYPE = 2;
-    private final int NUMBER_GROUP_NAME = 3;
-    private final int NUMBER_GROUP_MESSAGE = 4;
+    private final Pattern LOG_PATTERN = Pattern.compile("(?<date>\\d{4}\\/\\d{2}\\/\\d{2}).+(?<type>\\[\\w+\\])\\s+(?<user>[a-zA-z0-9]+).+\\s-\\s(?<msg>.+)");
     private List<String> argsList;
-    private String findedArgument;
+    private List<String> findedArgument;
+    private List<String> dateArgs;
+    private List<String> userArgs;
+    private List<String> msgArgs;
 
     public SearchEngine() {
     }
 
     public SearchEngine(List argsList) {
         this.argsList = argsList;
-
     }
 
     @Override
     public void initialArguments() throws ArgumentsException {
+        findedArgument = new ArrayList<>();
+        dateArgs = new ArrayList<>();
+        userArgs = new ArrayList<>();
+        msgArgs = new ArrayList<>();
         Iterator iterator = argsList.iterator();
         while (iterator.hasNext()) {
             String input = (String) iterator.next();
             if (input.contains("-d-")) {
-                arguments.put(input.replaceAll("-d-", ""), NUMBER_GROUP_DATE);
+                dateArgs.add(input.replaceAll("-d-", ""));
             } else if (input.contains("-n-")) {
-                arguments.put(input.replaceAll("-n-", ""), NUMBER_GROUP_NAME);
+                userArgs.add(input.replaceAll("-n-", ""));
             } else if (input.contains("-p-")) {
 
                 StringBuilder builder = new StringBuilder();
@@ -45,41 +45,83 @@ public class SearchEngine implements LogAnalysis {
                     builder.append(" ");
                     builder.append(input);
                 }
-                arguments.put(builder.toString(), NUMBER_GROUP_MESSAGE);
+                msgArgs.add(builder.toString());
             }
         }
-        if (arguments.size() == 0) {
+        if (dateArgs.size() == 0 && userArgs.size() == 0 && msgArgs.size() == 0) {
             throw new ArgumentsException("Incorrect arguments.");
         }
+    }
 
+    private String check(String nameGroup, Matcher m, List argsList) {
+        for (int i = 0; i < argsList.size(); i++) {
+            if (m.group(nameGroup).contains((CharSequence) argsList.get(i))) {
+                return (String) argsList.get(i);
+            }
+        }
+        return "";
     }
 
     @Override
-    public boolean isValid(String input) {
-        long countValidArg = 0;
-        if (arguments.size() == 0) {
-            return false;
+    public synchronized boolean isValid(String input) {
+        if (!findedArgument.isEmpty()) {
+            findedArgument.clear();
         }
+        boolean isDate = true;
+        boolean isUser = true;
+        boolean isMSG = true;
+
         Pattern p = LOG_PATTERN;
         Matcher m = p.matcher(input);
+
         if (m.find()) {
-            for (Map.Entry entry : arguments.entrySet()) {
-                if (m.group((Integer) entry.getValue()).contains((String) entry.getKey())) {
-                    findedArgument =(String) entry.getKey();
-                    return true;
+            if (dateArgs.size() != 0) {
+                String line = check("date", m, dateArgs);
+                if (line.equals("")) {
+                    isDate = false;
+                } else {
+                    findedArgument.add(line);
+                    isDate = true;
+                }
+            }
+            if (userArgs.size() != 0) {
+                String line = check("user", m, userArgs);
+                if (line.equals("")) {
+                    isUser = false;
+                } else {
+                    findedArgument.add(line);
+                    isUser = true;
+                }
+            }
+            if (msgArgs.size() != 0) {
+                String line = check("msg", m, msgArgs);
+                if (line.equals("")) {
+                    isMSG = false;
+                } else {
+                    findedArgument.add(line);
+                    isMSG = true;
                 }
             }
         }
-        return false;
+        if (isDate && isUser && isMSG) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
-    public Map<String, Integer> getArguments() {
-        return arguments;
+    public List getArguments() {
+        List<String> list = new ArrayList();
+        ((ArrayList<String>) list).ensureCapacity(dateArgs.size() + userArgs.size() + msgArgs.size());
+        list.addAll(dateArgs);
+        list.addAll(userArgs);
+        list.addAll(msgArgs);
+        return list;
     }
 
     @Override
-    public String getFindedArgument() {
+    public synchronized List<String> getFindedArgument() {
         return findedArgument;
     }
 }

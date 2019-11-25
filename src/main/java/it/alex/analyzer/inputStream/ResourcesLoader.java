@@ -14,7 +14,6 @@ public class ResourcesLoader implements ResourcesProvider {
     }
 
     private void loadFile() {
-
         File dir = new File(path);
         File[] folder = dir.listFiles();
         for (int i = 0; i < folder.length; i++) {

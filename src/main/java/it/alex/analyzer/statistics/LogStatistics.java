@@ -1,12 +1,12 @@
 package it.alex.analyzer.statistics;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public interface LogStatistics {
     Map getStatistics();
 
-    void statisticsCounting(String keyArgs);
+    void statisticsCounting(List key);
 
-    void initialArguments(Set keySet);
+    void initialArguments(List list);
 }

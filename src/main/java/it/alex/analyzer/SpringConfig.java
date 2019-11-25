@@ -11,7 +11,6 @@ import it.alex.analyzer.statistics.StatisticsEngine;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 
 import java.util.List;
 
@@ -23,15 +22,14 @@ public class SpringConfig {
 
     private List<String> args = getArgs();
 
-
     @Bean
     public LogsHandler logsHandler() {
-        return new LogsHandler(resourcesProvider().getFileList(),logAnalysis(),logStatistics(), outputProvider());
+        return new LogsHandler(resourcesProvider().getFileList(), logAnalysis(), logStatistics(), outputProvider());
     }
 
     @Bean
     public LogAnalysis logAnalysis() {
-        return new SearchEngine  (args);
+        return new SearchEngine(args);
     }
 
     @Bean
@@ -39,16 +37,13 @@ public class SpringConfig {
         return new ResourcesLoader(args.get(0));
     }
 
-
     @Bean
-    @Scope("prototype")
     public OutputProvider outputProvider() {
         return new LogFileWriter();
     }
 
     @Bean
-    public LogStatistics logStatistics(){
+    public LogStatistics logStatistics() {
         return new StatisticsEngine();
     }
-
 }
