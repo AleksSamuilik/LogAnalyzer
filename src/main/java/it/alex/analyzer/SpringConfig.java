@@ -2,6 +2,7 @@ package it.alex.analyzer;
 
 import it.alex.analyzer.analysis.LogAnalysis;
 import it.alex.analyzer.analysis.SearchEngine;
+import it.alex.analyzer.inputStream.FileNotFoundException;
 import it.alex.analyzer.inputStream.ResourcesLoader;
 import it.alex.analyzer.inputStream.ResourcesProvider;
 import it.alex.analyzer.outputStream.LogFileWriter;
@@ -24,7 +25,7 @@ public class SpringConfig {
 
     @Bean
     public LogsHandler logsHandler() {
-        return new LogsHandler(resourcesProvider().getFileList(), logAnalysis(), logStatistics(), outputProvider());
+        return new LogsHandler(resourcesProvider(), logAnalysis(), logStatistics(), outputProvider());
     }
 
     @Bean
@@ -33,7 +34,7 @@ public class SpringConfig {
     }
 
     @Bean
-    public ResourcesProvider resourcesProvider() {
+    public ResourcesProvider resourcesProvider(){
         return new ResourcesLoader(args.get(0));
     }
 

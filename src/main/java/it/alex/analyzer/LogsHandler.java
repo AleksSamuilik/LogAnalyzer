@@ -2,6 +2,8 @@ package it.alex.analyzer;
 
 import it.alex.analyzer.analysis.ArgumentsException;
 import it.alex.analyzer.analysis.LogAnalysis;
+import it.alex.analyzer.inputStream.FileNotFoundException;
+import it.alex.analyzer.inputStream.ResourcesProvider;
 import it.alex.analyzer.outputStream.OutputProvider;
 import it.alex.analyzer.statistics.LogStatistics;
 
@@ -21,15 +23,16 @@ public class LogsHandler {
     private LogAnalysis logAnalysis;
     private OutputProvider outputProvider;
     private LogStatistics logStatistics;
+    ResourcesProvider resourcesProvider;
 
     public LogsHandler() {
     }
 
-    public LogsHandler(List<File> fileList, LogAnalysis logAnalysis, LogStatistics logStatistics, OutputProvider outputProvider) {
-        this.fileList = Collections.synchronizedList(fileList);
+    public LogsHandler(ResourcesProvider resourcesProvider, LogAnalysis logAnalysis, LogStatistics logStatistics, OutputProvider outputProvider) {
         this.logAnalysis = logAnalysis;
         this.outputProvider = outputProvider;
         this.logStatistics = logStatistics;
+        this.resourcesProvider = resourcesProvider;
     }
 
     public synchronized void handler(File inputFile) {
@@ -73,7 +76,9 @@ public class LogsHandler {
         return 1;
     }
 
-    public void start() throws ArgumentsException {
+    public void start() throws ArgumentsException, FileNotFoundException {
+        resourcesProvider.loadFile();
+        this.fileList = Collections.synchronizedList(resourcesProvider.getFileList());
         int numberThread = initialNumberOfThreads();
         logAnalysis.initialArguments();
         outputProvider.setPathOutputFile(fileList.get(0));
@@ -94,7 +99,6 @@ public class LogsHandler {
                     fileList.remove(fileList.size() - 1);
                 }
             } else {
-                System.out.println(Thread.currentThread().getName());
                 handler(fileList.get(fileList.size() - 1));
                 fileList.remove(fileList.size() - 1);
             }
@@ -115,7 +119,6 @@ public class LogsHandler {
 
         @Override
         public void run() {
-            System.out.println(Thread.currentThread().getName());
             logsHandler.handler(file);
         }
     }

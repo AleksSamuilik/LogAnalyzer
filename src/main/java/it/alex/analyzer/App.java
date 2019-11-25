@@ -1,6 +1,7 @@
 package it.alex.analyzer;
 
 import it.alex.analyzer.analysis.ArgumentsException;
+import it.alex.analyzer.inputStream.FileNotFoundException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ import java.util.List;
  * [3] - user name to search
  * [4] - pattern message to search
  * <p>
- *     java -jar LogAnalyzer-1.0-SNAPSHOT-jar-with-dependencies.jar D:\Java\LogAnalyzer\folderLogFiles -d-2017/06/21 -d-2017/06/01 -n-Sam -n-Aleks
+ * java -jar LogAnalyzer-1.0-SNAPSHOT-jar-with-dependencies.jar D:\Java\LogAnalyzer\folderLogFiles -d-2017/06/21 -d-2017/06/01 -n-Sam -n-Aleks
  * command line arguments example: D:\Java\LogAnalyzer\folderLogFiles -t-3 -d-2019/11/01 -d-2019/11/21 -n-Sam -p-Context: ClassPath
  * log files directory\
  * -t-1* default.
@@ -44,6 +45,8 @@ public class App {
             handler.start();
             context.close();
         } catch (ArgumentsException e) {
+            System.out.println(e.getMessage());
+        } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
         }
     }
