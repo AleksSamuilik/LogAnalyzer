@@ -16,12 +16,16 @@ import java.util.List;
  * <p>
  * String[]args
  * [0] - file directory location
- * [1] - date to search
- * [2] - user name to search
- * [3] - pattern message to search
+ * [1] - number of threads
+ * [2] - date to search
+ * [3] - user name to search
+ * [4] - pattern message to search
  * <p>
- * command line arguments example: D:\Java\LogAnalyzer\folderLogFiles -d-2019/11/01 -d-2019/11/21 -n-Sam -p-Context: ClassPath
+ *     java -jar LogAnalyzer-1.0-SNAPSHOT-jar-with-dependencies.jar D:\Java\LogAnalyzer\folderLogFiles -d-2017/06/21 -d-2017/06/01 -n-Sam -n-Aleks
+ * command line arguments example: D:\Java\LogAnalyzer\folderLogFiles -t-3 -d-2019/11/01 -d-2019/11/21 -n-Sam -p-Context: ClassPath
  * log files directory\
+ * -t-1* default.
+ * If more than the number of input files is specified, then the value will be equal to the number of input files.
  * -d-yyyy/MM/dd
  * -n-UserName
  * -p-message
