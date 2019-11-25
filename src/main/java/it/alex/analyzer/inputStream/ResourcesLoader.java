@@ -18,7 +18,9 @@ public class ResourcesLoader implements ResourcesProvider {
         File[] folder = dir.listFiles();
         for (int i = 0; i < folder.length; i++) {
             if (folder[i].isFile()) {
-                if (folder[i].getName().endsWith(".log")) ;
+                if (folder[i].getName().equals("LogAnalyzer.log")) {
+                    continue;
+                } else if (folder[i].getName().endsWith(".log")) ;
                 fileList.add(folder[i]);
             }
         }

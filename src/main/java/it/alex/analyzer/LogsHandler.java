@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +26,7 @@ public class LogsHandler {
     }
 
     public LogsHandler(List<File> fileList, LogAnalysis logAnalysis, LogStatistics logStatistics, OutputProvider outputProvider) {
-        this.fileList = fileList;
+        this.fileList = Collections.synchronizedList(fileList);
         this.logAnalysis = logAnalysis;
         this.outputProvider = outputProvider;
         this.logStatistics = logStatistics;
@@ -53,22 +55,50 @@ public class LogsHandler {
         }
     }
 
+    private int initialNumberOfThreads() {
+        List argsList = App.getArgs();
+        Iterator iterator = argsList.iterator();
+        while (iterator.hasNext()) {
+            int numberThread = 0;
+            String input = (String) iterator.next();
+            if (input.contains("-t-")) {
+                numberThread = Integer.parseInt(input.replaceAll("-t-", ""));
+                if (numberThread > fileList.size()) {
+                    return fileList.size();
+                } else {
+                    return numberThread;
+                }
+            }
+        }
+        return 1;
+    }
+
     public void start() throws ArgumentsException {
+        int numberThread = initialNumberOfThreads();
         logAnalysis.initialArguments();
         outputProvider.setPathOutputFile(fileList.get(0));
         outputProvider.createOutputFile();
         logStatistics.initialArguments(logAnalysis.getArguments());
-
-        for (int i = 0; i < fileList.size(); i++) {
-            MyThread myThread = new MyThread(this, fileList.get(i));
-            myThread.start();
-            synchronized (myThread) {
-                try {
-                    myThread.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        while (!fileList.isEmpty()) {
+            if (numberThread <= fileList.size() && numberThread != 1) {
+                for (int i = 0; i < numberThread; i++) {
+                    MyThread myThread = new MyThread(this, fileList.get(fileList.size() - 1));
+                    myThread.start();
+                    synchronized (myThread) {
+                        try {
+                            myThread.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    fileList.remove(fileList.size() - 1);
                 }
+            } else {
+                System.out.println(Thread.currentThread().getName());
+                handler(fileList.get(fileList.size() - 1));
+                fileList.remove(fileList.size() - 1);
             }
+
         }
         outputProvider.close();
         printStatistic(logStatistics.getStatistics());
@@ -85,6 +115,7 @@ public class LogsHandler {
 
         @Override
         public void run() {
+            System.out.println(Thread.currentThread().getName());
             logsHandler.handler(file);
         }
     }
