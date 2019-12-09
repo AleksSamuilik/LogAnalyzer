@@ -11,10 +11,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 public class LogsHandler {
@@ -24,6 +22,7 @@ public class LogsHandler {
     private OutputProvider outputProvider;
     private LogStatistics logStatistics;
     ResourcesProvider resourcesProvider;
+    private int numberThread;
 
     public LogsHandler() {
     }
@@ -35,7 +34,7 @@ public class LogsHandler {
         this.resourcesProvider = resourcesProvider;
     }
 
-    public synchronized void handler(File inputFile) {
+    public void handler(File inputFile) {
         try (FileReader fileReader = new FileReader(inputFile);
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
             String line;
@@ -48,7 +47,6 @@ public class LogsHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        notify();
     }
 
     private void printStatistic(Map statisticMap) {
@@ -77,26 +75,20 @@ public class LogsHandler {
     }
 
     public void start() throws ArgumentsException, FileNotFoundException {
-        resourcesProvider.loadFile();
-        this.fileList = Collections.synchronizedList(resourcesProvider.getFileList());
-        int numberThread = initialNumberOfThreads();
-        logAnalysis.initialArguments();
-        outputProvider.setPathOutputFile(fileList.get(0));
-        outputProvider.createOutputFile();
-        logStatistics.initialArguments(logAnalysis.getArguments());
+        loadConfig();
+
         while (!fileList.isEmpty()) {
-            if (numberThread <= fileList.size() && numberThread != 1) {
-                for (int i = 0; i < numberThread; i++) {
-                    MyThread myThread = new MyThread(this, fileList.get(fileList.size() - 1));
-                    myThread.start();
-                    synchronized (myThread) {
-                        try {
-                            myThread.wait();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+            if (numberThread <= fileList.size() && numberThread > 1) {
+                List<MyThread> threadList = getThreadList();
+                for (int i = 0; i < threadList.size(); i++) {
+                    threadList.get(i).start();
+                }
+                for (int i = 0; i < threadList.size(); i++) {
+                    try {
+                        threadList.get(i).join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                    fileList.remove(fileList.size() - 1);
                 }
             } else {
                 handler(fileList.get(fileList.size() - 1));
@@ -106,6 +98,26 @@ public class LogsHandler {
         }
         outputProvider.close();
         printStatistic(logStatistics.getStatistics());
+    }
+
+    private void loadConfig() throws ArgumentsException, FileNotFoundException {
+        resourcesProvider.loadFile();
+        this.fileList = Collections.synchronizedList(resourcesProvider.getFileList());
+        this.numberThread = initialNumberOfThreads();
+        logAnalysis.initialArguments();
+        outputProvider.setPathOutputFile(fileList.get(0));
+        outputProvider.createOutputFile();
+        logStatistics.initialArguments(logAnalysis.getArguments());
+    }
+
+    private List<MyThread> getThreadList() {
+        List<MyThread> threadList = new ArrayList<>();
+        for (int i = 0; i < numberThread; i++) {
+
+            threadList.add(new MyThread(this, fileList.get(fileList.size() - 1)));
+            fileList.remove(fileList.size() - 1);
+        }
+        return threadList;
     }
 
     class MyThread extends Thread {

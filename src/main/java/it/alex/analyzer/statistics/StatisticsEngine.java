@@ -15,6 +15,7 @@ public class StatisticsEngine implements LogStatistics {
 
     @Override
     public synchronized void statisticsCounting(List key) {
+        System.out.println("Count "+Thread.currentThread().getName());
         Iterator iterator = key.iterator();
         while (iterator.hasNext()) {
             String line = (String) iterator.next();

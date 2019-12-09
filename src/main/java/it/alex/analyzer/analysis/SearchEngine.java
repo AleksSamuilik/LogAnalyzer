@@ -64,6 +64,7 @@ public class SearchEngine implements LogAnalysis {
 
     @Override
     public synchronized boolean isValid(String input) {
+        System.out.println("Check "+Thread.currentThread().getName());
         if (!findedArgument.isEmpty()) {
             findedArgument.clear();
         }
