@@ -1,5 +1,8 @@
 # LogAnalyzer
 
+*Building the project through the maven command: mvn clean package
+
+
 FORMAT LOG FILE:
  * yyyy/MM/dd hh:mm:ss,sss  [TYPE_MESSAGE] USER_NAME SERVER NAME_CLASS NAME_METHOD - TEXT MESSAGE
  * EXAMPLE:
