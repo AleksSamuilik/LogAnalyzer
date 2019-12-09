@@ -12,9 +12,6 @@ public class LogFileWriter implements OutputProvider {
 
     private PrintWriter logWriter;
 
-    public LogFileWriter() {
-    }
-
     @Override
     public synchronized void write(String inputString) {
 

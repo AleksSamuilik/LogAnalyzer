@@ -5,15 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ResourcesLoader implements ResourcesProvider {
-    private String path;
-    private List<File> fileList = new ArrayList<>();
-
-    public ResourcesLoader(String path) throws FileNotFoundException {
+    @Override
+    public void setPath(String path) {
         this.path = path;
     }
 
+    private String path;
+    private List<File> fileList = new ArrayList<>();
+
     @Override
-    public void loadFile() throws FileNotFoundException{
+    public void loadFile() throws FileNotFoundException {
         File dir = new File(path);
         File[] folder = dir.listFiles();
 
@@ -26,8 +27,8 @@ public class ResourcesLoader implements ResourcesProvider {
                 }
             }
         }
-        if (fileList.isEmpty()){
-           throw new FileNotFoundException("File not found");
+        if (fileList.isEmpty()) {
+            throw new FileNotFoundException("File not found");
         }
     }
 

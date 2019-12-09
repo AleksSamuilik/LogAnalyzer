@@ -9,22 +9,21 @@ import java.util.regex.Pattern;
 public class SearchEngine implements LogAnalysis {
 
     private final Pattern LOG_PATTERN = Pattern.compile("(?<date>\\d{4}\\/\\d{2}\\/\\d{2}).+(?<type>\\[\\w+\\])\\s+(?<user>[a-zA-z0-9]+).+\\s-\\s(?<msg>.+)");
+
+    @Override
+    public void setArgsList(List argsList) {
+        this.argsList = argsList;
+    }
+
     private List<String> argsList;
-    private List<String> findedArgument;
+    private List<String> findsArgument;
     private List<String> dateArgs;
     private List<String> userArgs;
     private List<String> msgArgs;
 
-    public SearchEngine() {
-    }
-
-    public SearchEngine(List argsList) {
-        this.argsList = argsList;
-    }
-
     @Override
     public void initialArguments() throws ArgumentsException {
-        findedArgument = new ArrayList<>();
+        findsArgument = new ArrayList<>();
         dateArgs = new ArrayList<>();
         userArgs = new ArrayList<>();
         msgArgs = new ArrayList<>();
@@ -64,9 +63,9 @@ public class SearchEngine implements LogAnalysis {
 
     @Override
     public synchronized boolean isValid(String input) {
-        System.out.println("Check "+Thread.currentThread().getName());
-        if (!findedArgument.isEmpty()) {
-            findedArgument.clear();
+        System.out.println("Check " + Thread.currentThread().getName());
+        if (!findsArgument.isEmpty()) {
+            findsArgument.clear();
         }
         boolean isDate = true;
         boolean isUser = true;
@@ -81,7 +80,7 @@ public class SearchEngine implements LogAnalysis {
                 if (line.equals("")) {
                     isDate = false;
                 } else {
-                    findedArgument.add(line);
+                    findsArgument.add(line);
                     isDate = true;
                 }
             }
@@ -90,7 +89,7 @@ public class SearchEngine implements LogAnalysis {
                 if (line.equals("")) {
                     isUser = false;
                 } else {
-                    findedArgument.add(line);
+                    findsArgument.add(line);
                     isUser = true;
                 }
             }
@@ -99,7 +98,7 @@ public class SearchEngine implements LogAnalysis {
                 if (line.equals("")) {
                     isMSG = false;
                 } else {
-                    findedArgument.add(line);
+                    findsArgument.add(line);
                     isMSG = true;
                 }
             }
@@ -122,9 +121,7 @@ public class SearchEngine implements LogAnalysis {
     }
 
     @Override
-    public synchronized List<String> getFindedArgument() {
-        return findedArgument;
+    public synchronized List<String> getFindsArgument() {
+        return findsArgument;
     }
 }
-
-

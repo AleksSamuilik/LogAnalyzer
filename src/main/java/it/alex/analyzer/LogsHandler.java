@@ -6,33 +6,30 @@ import it.alex.analyzer.inputStream.FileNotFoundException;
 import it.alex.analyzer.inputStream.ResourcesProvider;
 import it.alex.analyzer.outputStream.OutputProvider;
 import it.alex.analyzer.statistics.LogStatistics;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+
+import static it.alex.analyzer.App.getArgs;
 
 
 public class LogsHandler {
 
-    private List<File> fileList;
+    @Autowired
     private LogAnalysis logAnalysis;
+    @Autowired
     private OutputProvider outputProvider;
+    @Autowired
     private LogStatistics logStatistics;
+    @Autowired
     ResourcesProvider resourcesProvider;
+
+    private List<File> fileList;
     private int numberThread;
-
-    public LogsHandler() {
-    }
-
-    public LogsHandler(ResourcesProvider resourcesProvider, LogAnalysis logAnalysis, LogStatistics logStatistics, OutputProvider outputProvider) {
-        this.logAnalysis = logAnalysis;
-        this.outputProvider = outputProvider;
-        this.logStatistics = logStatistics;
-        this.resourcesProvider = resourcesProvider;
-    }
 
     public void handler(File inputFile) {
         try (FileReader fileReader = new FileReader(inputFile);
@@ -40,7 +37,7 @@ public class LogsHandler {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 if (logAnalysis.isValid(line)) {
-                    logStatistics.statisticsCounting(logAnalysis.getFindedArgument());
+                    logStatistics.statisticsCounting(logAnalysis.getFindsArgument());
                     outputProvider.write(line);
                 }
             }
@@ -57,7 +54,7 @@ public class LogsHandler {
     }
 
     private int initialNumberOfThreads() {
-        List argsList = App.getArgs();
+        List argsList = getArgs();
         Iterator iterator = argsList.iterator();
         while (iterator.hasNext()) {
             int numberThread = 0;
@@ -76,8 +73,6 @@ public class LogsHandler {
 
     public void start() throws ArgumentsException, FileNotFoundException {
         loadConfig();
-
-        while (!fileList.isEmpty()) {
             if (numberThread <= fileList.size() && numberThread > 1) {
                 List<MyThread> threadList = getThreadList();
                 for (int i = 0; i < threadList.size(); i++) {
@@ -94,16 +89,16 @@ public class LogsHandler {
                 handler(fileList.get(fileList.size() - 1));
                 fileList.remove(fileList.size() - 1);
             }
-
-        }
         outputProvider.close();
         printStatistic(logStatistics.getStatistics());
     }
 
     private void loadConfig() throws ArgumentsException, FileNotFoundException {
+        resourcesProvider.setPath((String) getArgs().get(0));
         resourcesProvider.loadFile();
         this.fileList = Collections.synchronizedList(resourcesProvider.getFileList());
         this.numberThread = initialNumberOfThreads();
+        logAnalysis.setArgsList(getArgs());
         logAnalysis.initialArguments();
         outputProvider.setPathOutputFile(fileList.get(0));
         outputProvider.createOutputFile();

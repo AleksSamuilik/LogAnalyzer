@@ -41,7 +41,7 @@ public class TryTest {
     public TryTest(String input, List arguments) {
         this.input = input;
         this.arguments = arguments;
-        this.logAnalysis = new SearchEngine(arguments);
+        this.logAnalysis = new SearchEngine();
 
     }
 

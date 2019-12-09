@@ -27,7 +27,8 @@ public class ExceptionTest {
     public void argumentExceptionTest1() {
         thrown.expect(ArgumentsException.class);
         thrown.expectMessage("Incorrect arguments");
-        this.logAnalysis = new SearchEngine(new ArrayList(Arrays.asList()));
+        this.logAnalysis = new SearchEngine();
+        logAnalysis.setArgsList(new ArrayList(Arrays.asList()));
         logAnalysis.initialArguments();
     }
 
@@ -35,7 +36,8 @@ public class ExceptionTest {
     public void argumentExceptionTest2() {
         thrown.expect(ArgumentsException.class);
         thrown.expectMessage("Incorrect arguments");
-        this.logAnalysis = new SearchEngine(new ArrayList(Arrays.asList("add")));
+        this.logAnalysis = new SearchEngine();
+        logAnalysis.setArgsList(new ArrayList(Arrays.asList("add")));
         logAnalysis.initialArguments();
     }
 
@@ -43,7 +45,8 @@ public class ExceptionTest {
     public void fileNotFoundExceptionTest() {
         thrown.expect(FileNotFoundException.class);
         thrown.expectMessage("File not found");
-       this.resourcesProvider= new ResourcesLoader("D:/Java/LogAnalyzer"); // usually point to a folder with test resources.
-       resourcesProvider.loadFile();
+        this.resourcesProvider = new ResourcesLoader();
+        resourcesProvider.setPath("D:/Java/LogAnalyzer"); // usually point to a folder with test resources.
+        resourcesProvider.loadFile();
     }
 }
