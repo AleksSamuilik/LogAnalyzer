@@ -10,7 +10,7 @@ public interface LogAnalysis {
 
     boolean isValid(String inputLine);
 
-    List getArguments();
+    List getAllArguments();
 
     List getFindsArgument();
 

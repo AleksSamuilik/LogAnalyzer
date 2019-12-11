@@ -10,55 +10,46 @@ public class SearchEngine implements LogAnalysis {
 
     private final Pattern LOG_PATTERN = Pattern.compile("(?<date>\\d{4}\\/\\d{2}\\/\\d{2}).+(?<type>\\[\\w+\\])\\s+(?<user>[a-zA-z0-9]+).+\\s-\\s(?<msg>.+)");
 
+
+    private List<String> argsList;
+    private List<String> findsArgument;
+    List<LogFilter> filterList;
+
     @Override
     public void setArgsList(List argsList) {
         this.argsList = argsList;
     }
 
-    private List<String> argsList;
-    private List<String> findsArgument;
-    private List<String> dateArgs;
-    private List<String> userArgs;
-    private List<String> msgArgs;
+    private void createListFilterArg() {
+        this.filterList = new ArrayList<>();
+        filterList.add(new DateFilter(argsList));
+        filterList.add(new UserFilter(argsList));
+        filterList.add(new MessageFilter(argsList));
+    }
 
     @Override
     public void initialArguments() throws ArgumentsException {
-        findsArgument = new ArrayList<>();
-        dateArgs = new ArrayList<>();
-        userArgs = new ArrayList<>();
-        msgArgs = new ArrayList<>();
-        Iterator iterator = argsList.iterator();
-        while (iterator.hasNext()) {
-            String input = (String) iterator.next();
-            if (input.contains("-d-")) {
-                dateArgs.add(input.replaceAll("-d-", ""));
-            } else if (input.contains("-n-")) {
-                userArgs.add(input.replaceAll("-n-", ""));
-            } else if (input.contains("-p-")) {
-
-                StringBuilder builder = new StringBuilder();
-                builder.append(input.replaceAll("-p-", ""));
-
-                while (iterator.hasNext()) {
-                    input = (String) iterator.next();
-                    builder.append(" ");
-                    builder.append(input);
-                }
-                msgArgs.add(builder.toString());
-            }
-        }
-        if (dateArgs.size() == 0 && userArgs.size() == 0 && msgArgs.size() == 0) {
+        createListFilterArg();
+        this.findsArgument = new ArrayList<>();
+        if (isValidInputArguments()) {
             throw new ArgumentsException("Incorrect arguments.");
         }
     }
 
-    private String check(String nameGroup, Matcher m, List argsList) {
-        for (int i = 0; i < argsList.size(); i++) {
-            if (m.group(nameGroup).contains((CharSequence) argsList.get(i))) {
-                return (String) argsList.get(i);
+    private boolean isValidInputArguments() {
+        int count = 0;
+        Iterator iterator = filterList.iterator();
+        while (iterator.hasNext()) {
+            LogFilter filter = (LogFilter) iterator.next();
+            if (filter.isEmptyArgsList()) {
+                count++;
             }
         }
-        return "";
+        if (count == filterList.size()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -67,43 +58,49 @@ public class SearchEngine implements LogAnalysis {
         if (!findsArgument.isEmpty()) {
             findsArgument.clear();
         }
-        boolean isDate = true;
-        boolean isUser = true;
-        boolean isMSG = true;
 
-        Pattern p = LOG_PATTERN;
-        Matcher m = p.matcher(input);
+        Matcher m = LOG_PATTERN.matcher(input);
 
         if (m.find()) {
-            if (dateArgs.size() != 0) {
-                String line = check("date", m, dateArgs);
-                if (line.equals("")) {
-                    isDate = false;
-                } else {
-                    findsArgument.add(line);
-                    isDate = true;
-                }
-            }
-            if (userArgs.size() != 0) {
-                String line = check("user", m, userArgs);
-                if (line.equals("")) {
-                    isUser = false;
-                } else {
-                    findsArgument.add(line);
-                    isUser = true;
-                }
-            }
-            if (msgArgs.size() != 0) {
-                String line = check("msg", m, msgArgs);
-                if (line.equals("")) {
-                    isMSG = false;
-                } else {
-                    findsArgument.add(line);
-                    isMSG = true;
+            Iterator iterator = filterList.iterator();
+            while (iterator.hasNext()) {
+                LogFilter filter = (LogFilter) iterator.next();
+                if (!filter.isEmptyArgsList()) {
+                    String line = getMatch(m, filter);
+                    if (line.equals("")) {
+                        filter.setStatus(false);
+                    } else {
+                        findsArgument.add(line);
+                    }
                 }
             }
         }
-        if (isDate && isUser && isMSG) {
+        if (resultMath()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public String getMatch(Matcher m, LogFilter filter) {
+        for (int i = 0; i < filter.getFilterArgs().size(); i++) {
+            if (m.group(filter.nameGroupPattern()).contains((CharSequence) filter.getFilterArgs().get(i))) {
+                return (String) filter.getFilterArgs().get(i);
+            }
+        }
+        return "";
+    }
+
+    private boolean resultMath() {
+        int count = filterList.size();
+        Iterator iterator = filterList.iterator();
+        while (iterator.hasNext()) {
+            LogFilter filter = (LogFilter) iterator.next();
+            if (filter.isStatus()) {
+                count--;
+            }
+        }
+        if (count == 0) {
             return true;
         } else {
             return false;
@@ -111,12 +108,16 @@ public class SearchEngine implements LogAnalysis {
     }
 
     @Override
-    public List getArguments() {
+    public List getAllArguments() {
         List<String> list = new ArrayList();
-        ((ArrayList<String>) list).ensureCapacity(dateArgs.size() + userArgs.size() + msgArgs.size());
-        list.addAll(dateArgs);
-        list.addAll(userArgs);
-        list.addAll(msgArgs);
+        int size = 0;
+        for (int i = 0; i < filterList.size(); i++) {
+            size += filterList.get(i).getFilterArgs().size();
+        }
+        ((ArrayList<String>) list).ensureCapacity(size);
+        for (int i = 0; i < filterList.size(); i++) {
+            list.addAll(filterList.get(i).getFilterArgs());
+        }
         return list;
     }
 

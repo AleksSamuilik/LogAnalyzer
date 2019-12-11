@@ -102,7 +102,7 @@ public class LogsHandler {
         logAnalysis.initialArguments();
         outputProvider.setPathOutputFile(fileList.get(0));
         outputProvider.createOutputFile();
-        logStatistics.initialArguments(logAnalysis.getArguments());
+        logStatistics.initialArguments(logAnalysis.getAllArguments());
     }
 
     private List<MyThread> getThreadList() {
