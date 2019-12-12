@@ -11,7 +11,6 @@ public class UserFilter implements LogFilter {
     private List<String> userArgs;
     private boolean status = true;
 
-
     public UserFilter(List<String> argsList) {
         this.argsList = argsList;
         createUserArgs();

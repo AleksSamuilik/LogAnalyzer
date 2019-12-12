@@ -1,0 +1,30 @@
+2017/06/01 15:37:18,186  [INFO] Aleks main resourcePath.ResourceStarter:17 - Starting resources...
+2017/06/01 15:37:18,892  [INFO] Aleks main resourcePath.ResourceStarter:82 - ****************************************************
+2017/06/01 15:37:18,194  [INFO] Aleks main resourcePath.ResourceStarter:25 - *******printClassResourcesByContextNoPrefix**********
+2017/06/01 15:37:18,852  [INFO] Aleks main resourcePath.ResourceStarter:28 - AnnotationConfigApplicationContext: ClassPathContextResource
+2017/06/01 15:37:18,857  [INFO] Aleks main resourcePath.ResourceStarter:32 - ClassPathXmlApplicationContext: ClassPathContextResource
+2017/06/01 15:37:18,863  [INFO] Aleks main resourcePath.ResourceStarter:36 - FileSystemXmlApplicationContext: FileSystemResource
+2017/06/01 15:37:19,852  [INFO] Aleks main resourcePath.ResourceStarter:28 - AnnotationConfigApplicationContext: ClassPathContextResource
+2017/06/01 15:37:19,857  [INFO] Aleks main resourcePath.ResourceStarter:32 - ClassPathXmlApplicationContext: ClassPathContextResource
+2017/06/01 15:37:19,863  [INFO] Aleks main resourcePath.ResourceStarter:36 - FileSystemXmlApplicationContext: FileSystemResource
+2017/06/01 15:37:20,852  [INFO] Aleks main resourcePath.ResourceStarter:28 - AnnotationConfigApplicationContext: ClassPathContextResource
+2017/06/01 15:37:20,857  [INFO] Aleks main resourcePath.ResourceStarter:32 - ClassPathXmlApplicationContext: ClassPathContextResource
+2017/06/01 15:37:20,863  [INFO] Aleks main resourcePath.ResourceStarter:36 - FileSystemXmlApplicationContext: FileSystemResource
+2017/06/01 15:37:21,863  [INFO] Aleks main resourcePath.ResourceStarter:37 - ****************************************************
+2017/06/01 13:37:18,867  [INFO] Aleks main resourcePath.ResourceStarter:41 - *******printClassResourcesByContextWithPrefix*******
+2017/06/01 13:37:18,875  [INFO] Aleks main resourcePath.ResourceStarter:44 - file: FileUrlResource
+2017/06/01 13:37:18,876  [INFO] Aleks main resourcePath.ResourceStarter:46 - http: UrlResource
+2017/06/01 13:37:18,876  [INFO] Aleks main resourcePath.ResourceStarter:48 - classpath: ClassPathResource
+2017/06/01 13:37:18,876  [INFO] Aleks main resourcePath.ResourceStarter:49 - ****************************************************
+2017/06/01 20:37:18,876  [INFO] Aleks main resourcePath.ResourceStarter:53 - *****************resourcePath()*********************
+2017/06/21 20:37:18,876  [INFO] Aleks main resourcePath.ResourceStarter:54 - context = new ClassPathXmlApplicationContext()
+2017/06/21 20:37:18,878  [INFO] Aleks main resourcePath.ResourceStarter:57 - log4j.properties exist: true
+2017/06/21 20:37:18,879  [INFO] Aleks main resourcePath.ResourceStarter:60 - file:src/main/resources/log4j.properties exist: true
+2017/06/21 20:37:18,879  [INFO] Sam main resourcePath.ResourceStarter:63 - log.txt exist: true
+2017/06/21 20:37:18,885  [INFO] Sam main resourcePath.ResourceStarter:66 - classpath:log.txt exist: true
+2017/06/21 22:37:18,886  [INFO] Sam main resourcePath.ResourceStarter:69 - file:log.txt exist: false
+2017/06/21 22:37:18,889  [INFO] Sam main resourcePath.ResourceStarter:72 - file:src/main/resources/log.txt exist: true
+2017/06/21 22:37:18,890  [INFO] Sam main resourcePath.ResourceStarter:74 - context = new FileSystemXmlApplicationContext()
+2017/06/21 22:37:18,891  [INFO] Sam main resourcePath.ResourceStarter:78 - log4j.properties exist: false
+2017/06/21 22:37:18,892  [INFO] Sam main resourcePath.ResourceStarter:81 - src/main/resources/log4j.properties exist: true
+2017/06/21 22:37:18,892  [INFO] Sam main resourcePath.ResourceStarter:82 - ****************************************************

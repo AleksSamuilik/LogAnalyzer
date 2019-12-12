@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 /**
  * FORMAT LOG FILE:
  * yyyy/MM/dd hh:mm:ss,sss  [TYPE_MESSAGE] USER_NAME SERVER NAME_CLASS NAME_METHOD - TEXT MESSAGE
@@ -22,7 +21,7 @@ import java.util.List;
  * [3] - user name to search
  * [4] - pattern message to search
  * <p>
- * java -jar LogAnalyzer-1.0-SNAPSHOT-jar-with-dependencies.jar D:\Java\LogAnalyzer\folderLogFiles -d-2017/06/21 -d-2017/06/01 -n-Sam -n-Aleks
+ * java -jar LogAnalyzer-1.0-SNAPSHOT-jar-with-dependencies.jar D:\Java\LogAnalyzer\folderLogFiles -t-3 -d-2017/06/21 -d-2017/06/01 -n-Sam -n-Aleks
  * command line arguments example: D:\Java\LogAnalyzer\folderLogFiles -t-3 -d-2019/11/01 -d-2019/11/21 -n-Sam -p-Context: ClassPath
  * log files directory\
  * -t-1* default.
@@ -55,4 +54,3 @@ public class App {
         return argsList;
     }
 }
-

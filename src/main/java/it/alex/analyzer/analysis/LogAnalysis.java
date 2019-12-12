@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface LogAnalysis {
 
-    void setArgsList(List argsList);
+    void setFilterList(List<LogFilter> filterList);
 
     void initialArguments();
 

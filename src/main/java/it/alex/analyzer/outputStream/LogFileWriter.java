@@ -1,8 +1,6 @@
 package it.alex.analyzer.outputStream;
 
 import java.io.*;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 public class LogFileWriter implements OutputProvider {
 
@@ -14,19 +12,12 @@ public class LogFileWriter implements OutputProvider {
 
     @Override
     public synchronized void write(String inputString) {
-
-        System.out.println("Write "+Thread.currentThread().getName());
         String text = inputString + "\n";
         logWriter.write(text, 0, text.length());
         flushCounter++;
         if (flushCounter > flushFrequency) {
             logWriter.flush();
             flushCounter = 0;
-        }
-        try {
-            TimeUnit.MILLISECONDS.sleep(new Random().nextInt(500));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 

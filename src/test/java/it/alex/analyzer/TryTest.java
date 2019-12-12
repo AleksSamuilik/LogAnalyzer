@@ -1,18 +1,15 @@
 package it.alex.analyzer;
 
-import it.alex.analyzer.analysis.LogAnalysis;
-import it.alex.analyzer.analysis.SearchEngine;
+import it.alex.analyzer.analysis.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 @RunWith(Parameterized.class)
 public class TryTest {
@@ -32,7 +29,7 @@ public class TryTest {
     }
 
 
-    LogAnalysis logAnalysis;
+    LogAnalysis logAnalysis = new SearchEngine();
 
     private String input;
     private List arguments;
@@ -41,13 +38,21 @@ public class TryTest {
     public TryTest(String input, List arguments) {
         this.input = input;
         this.arguments = arguments;
-        this.logAnalysis = new SearchEngine();
 
+    }
+
+    public void createFilterList() {
+        List<LogFilter> logFilterList = new ArrayList<>();
+        logFilterList.add(new DateFilter(arguments));
+        logFilterList.add(new UserFilter(arguments));
+        logFilterList.add(new MessageFilter(arguments));
+        logAnalysis.setFilterList(logFilterList);
     }
 
 
     @Test
     public void rightTest() {
+        createFilterList();
         logAnalysis.initialArguments();
         assertEquals(true, logAnalysis.isValid(input));
     }

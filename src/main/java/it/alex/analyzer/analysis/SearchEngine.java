@@ -1,5 +1,7 @@
 package it.alex.analyzer.analysis;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -9,27 +11,12 @@ import java.util.regex.Pattern;
 public class SearchEngine implements LogAnalysis {
 
     private final Pattern LOG_PATTERN = Pattern.compile("(?<date>\\d{4}\\/\\d{2}\\/\\d{2}).+(?<type>\\[\\w+\\])\\s+(?<user>[a-zA-z0-9]+).+\\s-\\s(?<msg>.+)");
-
-
-    private List<String> argsList;
     private List<String> findsArgument;
-    List<LogFilter> filterList;
-
-    @Override
-    public void setArgsList(List argsList) {
-        this.argsList = argsList;
-    }
-
-    private void createListFilterArg() {
-        this.filterList = new ArrayList<>();
-        filterList.add(new DateFilter(argsList));
-        filterList.add(new UserFilter(argsList));
-        filterList.add(new MessageFilter(argsList));
-    }
+    @Autowired
+    private List<LogFilter> filterList;
 
     @Override
     public void initialArguments() throws ArgumentsException {
-        createListFilterArg();
         this.findsArgument = new ArrayList<>();
         if (isValidInputArguments()) {
             throw new ArgumentsException("Incorrect arguments.");
@@ -54,9 +41,13 @@ public class SearchEngine implements LogAnalysis {
 
     @Override
     public synchronized boolean isValid(String input) {
-        System.out.println("Check " + Thread.currentThread().getName());
         if (!findsArgument.isEmpty()) {
             findsArgument.clear();
+            Iterator iterator = filterList.iterator();
+            while (iterator.hasNext()) {
+                LogFilter filter = (LogFilter) iterator.next();
+                filter.setStatus(true);
+            }
         }
 
         Matcher m = LOG_PATTERN.matcher(input);
@@ -119,6 +110,11 @@ public class SearchEngine implements LogAnalysis {
             list.addAll(filterList.get(i).getFilterArgs());
         }
         return list;
+    }
+
+    @Override
+    public void setFilterList(List<LogFilter> filterList) {
+        this.filterList = filterList;
     }
 
     @Override

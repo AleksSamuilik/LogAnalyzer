@@ -16,7 +16,6 @@ import java.util.*;
 
 import static it.alex.analyzer.App.getArgs;
 
-
 public class LogsHandler {
 
     @Autowired
@@ -57,7 +56,7 @@ public class LogsHandler {
         List argsList = getArgs();
         Iterator iterator = argsList.iterator();
         while (iterator.hasNext()) {
-            int numberThread = 0;
+            int numberThread;
             String input = (String) iterator.next();
             if (input.contains("-t-")) {
                 numberThread = Integer.parseInt(input.replaceAll("-t-", ""));
@@ -73,24 +72,40 @@ public class LogsHandler {
 
     public void start() throws ArgumentsException, FileNotFoundException {
         loadConfig();
-            if (numberThread <= fileList.size() && numberThread > 1) {
-                List<MyThread> threadList = getThreadList();
-                for (int i = 0; i < threadList.size(); i++) {
-                    threadList.get(i).start();
-                }
-                for (int i = 0; i < threadList.size(); i++) {
-                    try {
-                        threadList.get(i).join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                handler(fileList.get(fileList.size() - 1));
-                fileList.remove(fileList.size() - 1);
+        if (numberThread <= fileList.size() && numberThread > 1) {
+
+            while (fileList.size() - numberThread >= 0) {
+                startAltThread();
             }
+            startMainThread();
+        } else {
+            startMainThread();
+        }
         outputProvider.close();
         printStatistic(logStatistics.getStatistics());
+    }
+
+    private void startMainThread() {
+        while (fileList.size() != 0) {
+            handler(fileList.get(fileList.size() - 1));
+            fileList.remove(fileList.size() - 1);
+        }
+    }
+
+    private void startAltThread() {
+        List<MyThread> threadList = getThreadList();
+        for (int i = 0; i < threadList.size(); i++) {
+            threadList.get(i).start();
+        }
+        if (fileList.size() - numberThread >= 0 || fileList.size() % numberThread == 0) {
+            for (int i = 0; i < threadList.size(); i++) {
+                try {
+                    threadList.get(i).join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private void loadConfig() throws ArgumentsException, FileNotFoundException {
@@ -98,7 +113,6 @@ public class LogsHandler {
         resourcesProvider.loadFile();
         this.fileList = Collections.synchronizedList(resourcesProvider.getFileList());
         this.numberThread = initialNumberOfThreads();
-        logAnalysis.setArgsList(getArgs());
         logAnalysis.initialArguments();
         outputProvider.setPathOutputFile(fileList.get(0));
         outputProvider.createOutputFile();
@@ -108,7 +122,6 @@ public class LogsHandler {
     private List<MyThread> getThreadList() {
         List<MyThread> threadList = new ArrayList<>();
         for (int i = 0; i < numberThread; i++) {
-
             threadList.add(new MyThread(this, fileList.get(fileList.size() - 1)));
             fileList.remove(fileList.size() - 1);
         }

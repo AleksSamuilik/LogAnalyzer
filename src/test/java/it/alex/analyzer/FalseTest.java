@@ -1,7 +1,6 @@
 package it.alex.analyzer;
 
-import it.alex.analyzer.analysis.LogAnalysis;
-import it.alex.analyzer.analysis.SearchEngine;
+import it.alex.analyzer.analysis.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -28,7 +27,7 @@ public class FalseTest {
     }
 
 
-    LogAnalysis logAnalysis;
+    LogAnalysis logAnalysis = new SearchEngine();
 
     private String input;
     private List arguments;
@@ -37,14 +36,19 @@ public class FalseTest {
     public FalseTest(String input, List arguments) {
         this.input = input;
         this.arguments = arguments;
-        this.logAnalysis = new SearchEngine();
-        logAnalysis.setArgsList(arguments);
-
     }
 
+    public void createFilterList() {
+        List<LogFilter> logFilterList = new ArrayList<>();
+        logFilterList.add(new DateFilter(arguments));
+        logFilterList.add(new UserFilter(arguments));
+        logFilterList.add(new MessageFilter(arguments));
+        logAnalysis.setFilterList(logFilterList);
+    }
 
     @Test
     public void falseTest() {
+        createFilterList();
         logAnalysis.initialArguments();
         assertFalse(logAnalysis.isValid(input));
     }
